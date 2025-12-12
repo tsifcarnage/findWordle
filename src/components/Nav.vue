@@ -129,9 +129,9 @@ export default {
 }
 </style>
 <template>
-  <nav class="flex justify-between gap-2 p-3">
-    <img class="w-15 items-center" src="/src/img/logo.png" alt="" />
-    <h3 class="text-4xl">FindWord</h3>
+  <nav class="flex justify-between gap-2 bg-base-300 p-3">
+    <img class="w-10 items-center" src="/src/img/logo.png" alt="" />
+    <h3 class="text-3xl">FindWord</h3>
     <label class="switch">
       <span class="sun"
         ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
