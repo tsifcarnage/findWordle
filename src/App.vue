@@ -1,30 +1,39 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
+<script>
+import Nav from "./components/Nav.vue";
+import APIGet from "./components/APIGet.vue";
+export default {
+  components: {
+    Nav,
+    APIGet,
+  },
+  data() {
+    return {
+      wordFromStorage: null,
+    };
+  },
+  methods: {
+    onWordReady(word) {
+      this.wordFromStorage = word;
+    },
+  },
+};
 </script>
 
 <template>
   <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <Nav />
+    <APIGet @word-ready="onWordReady" />
+    <h1 class="text-info text-6xl">Find Wordle</h1>
+    <!-- Affichage du mot récupéré depuis localStorage -->
+    <div v-if="wordFromStorage">
+      <p>Mot récupéré depuis localStorage : {{ wordFromStorage }}</p>
+    </div>
+    <div v-else>
+      <p>
+        Pas de mot dans localStorage. Il faut d'abord le récupérer via l'API.
+      </p>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style scoped></style>
