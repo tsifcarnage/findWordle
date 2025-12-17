@@ -129,7 +129,7 @@ export default {
 }
 </style>
 <template>
-  <nav class="flex justify-between gap-2 bg-base-300 p-3">
+  <nav class="flex justify-between gap-2 bg-base-300 p-3 w-screen">
     <img class="w-10 items-center" src="/src/img/logo.png" alt="" />
     <h3 class="text-3xl">FindWord</h3>
     <label class="switch">
