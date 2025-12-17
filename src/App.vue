@@ -10,32 +10,77 @@ export default {
     Keyboard,
   },
 
+
   data() {
     return {
-      // état du jeu
-      currentRow: 0,
-      currentCol: 0,
-      maxRows: 6,
-      wordLength: 5,
-      gameOver: false,
+      // 🔴 TEMPORAIRE pour tests (sera relié à l’API plus tard)
+      solution: "APPLE",
 
-      // grille Wordle 6x5
       board: Array.from({ length: 6 }, () =>
-        Array.from({ length: 5 }, () => ({
-          letter: "",
-          status: "", // correct | present | absent
-        }))
+          Array.from({ length: 5 }, () => ({
+            letter: "",
+            status: "", // correct | present | absent
+          }))
       ),
+
+      currentRow: 0,
     };
+  },
+
+  methods: {
+    testWord(word) {
+      if (this.currentRow >= 6) return;
+
+      word = word.toUpperCase();
+
+      word.split("").forEach((letter, index) => {
+        this.board[this.currentRow][index].letter = letter;
+      });
+
+      // 👉 vérification Wordle
+      this.checkRow(this.currentRow);
+
+      this.currentRow++;
+    },
+
+    checkRow(rowIndex) {
+      const row = this.board[rowIndex];
+      const solutionLetters = this.solution.split("");
+
+      // 1️⃣ VERT : bonne lettre, bonne position
+      row.forEach((cell, index) => {
+        if (cell.letter === solutionLetters[index]) {
+          cell.status = "correct";
+          solutionLetters[index] = null;
+        }
+      });
+
+      // 2️⃣ JAUNE / ROUGE
+      row.forEach((cell) => {
+        if (cell.status) return;
+
+        const foundIndex = solutionLetters.indexOf(cell.letter);
+
+        if (foundIndex !== -1) {
+          cell.status = "present";
+          solutionLetters[foundIndex] = null;
+        } else {
+          cell.status = "absent";
+        }
+      });
+    },
+  },
+
+  mounted() {
+    window.testWord = this.testWord;
+    console.log("👉 testWord('APPLE') disponible");
   },
 };
 </script>
 
 <template>
   <div class="app">
-    <!-- Nav faite par ton ami -->
     <Nav />
-    <!-- Grille du jeu (ton travail commence ici) -->
     <GameBoard :board="board" />
     <Keyboard />
   </div>
