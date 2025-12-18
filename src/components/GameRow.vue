@@ -1,10 +1,10 @@
 <template>
-  <div class="row">
+  <div class="grid grid-cols-5 gap-2">
     <GameCell
-        v-for="(cell, index) in row"
-        :key="index"
-        :letter="cell.letter"
-        :status="cell.status"
+      v-for="(cell, index) in row"
+      :key="index"
+      :letter="cell.letter"
+      :status="cell.status"
     />
   </div>
 </template>
@@ -15,15 +15,10 @@ import GameCell from "./GameCell.vue";
 export default {
   components: { GameCell },
   props: {
-    row: Array,
+    row: {
+      type: Array,
+      required: true,
+    },
   },
 };
 </script>
-
-<style scoped>
-.row {
-  display: grid;
-  grid-template-columns: repeat(5, 50px);
-  gap: 10px;
-}
-</style>
