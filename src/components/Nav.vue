@@ -7,15 +7,20 @@ export default {
   },
   methods: {
     toggleTheme() {
-      if (this.isChecked) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      } else {
-        document.documentElement.setAttribute("data-theme", "light");
-      }
+      const theme = this.isChecked ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
     },
   },
   mounted() {
-    document.documentElement.setAttribute("data-theme", "light");
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      this.isChecked = savedTheme === "dark";
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("theme", "light");
+    }
   },
 };
 </script>
