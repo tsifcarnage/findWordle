@@ -27,6 +27,28 @@ export default {
   },
 
   methods: {
+    saveGame() {
+      const gameState = {
+        board: this.board,
+        currentRow: this.currentRow,
+        keyboardStatus: this.keyboardStatus,
+        solution: this.solution,
+      };
+      localStorage.setItem("wordleGameState", JSON.stringify(gameState));
+    },
+
+    loadGame() {
+      const saved = localStorage.getItem("wordleGameState");
+      if (!saved) return false;
+
+      const state = JSON.parse(saved);
+      this.board = state.board;
+      this.currentRow = state.currentRow;
+      this.keyboardStatus = state.keyboardStatus;
+      this.solution = state.solution;
+      return true;
+    },
+
     normalizeString(str) {
       return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     },
@@ -111,6 +133,7 @@ export default {
       // Mettre à jour le clavier
       this.updateKeyboardStatus(row);
       this.currentRow++;
+      this.saveGame();
     },
 
     checkRow(row, normalizedSolution, normalizedWord) {
@@ -145,14 +168,21 @@ export default {
   },
 
   mounted: async function () {
-    let solution = localStorage.getItem("wordleWord");
+    // Charger la partie sauvegardée si elle existe
+    const loaded = this.loadGame();
 
-    if (!solution) {
-      solution = await getWordleWord();
-      localStorage.setItem("wordleWord", solution);
+    // Si aucune sauvegarde, charger le mot du jour
+    if (!loaded) {
+      let solution = localStorage.getItem("wordleWord");
+
+      if (!solution) {
+        solution = await getWordleWord();
+        localStorage.setItem("wordleWord", solution);
+      }
+
+      this.solution = solution.toUpperCase();
     }
 
-    this.solution = solution.toUpperCase();
     console.log("Solution :", this.solution);
     window.addEventListener("keydown", this.handlePhysicalKey);
   },
