@@ -48,6 +48,11 @@ export default {
       this.solution = state.solution;
       return true;
     },
+    resetGame() {
+      //permet denlever le localstorage, a utiliser quand condition=trouver
+      localStorage.removeItem("wordleGameState");
+      location.reload();
+    },
 
     normalizeString(str) {
       return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
