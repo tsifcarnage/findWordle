@@ -19,7 +19,6 @@ export default {
       ],
     };
   },
-  //test
   methods: {
     pressKey(key) {
       this.$emit("key-press", key);

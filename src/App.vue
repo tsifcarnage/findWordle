@@ -58,7 +58,6 @@ export default {
       this.win = state.win ?? false;
       this.gameOver = state.gameOver ?? false;
 
-      // Si la partie était finie, on réaffiche la popup
       if (this.gameOver) {
         this.showPopup = true;
       }
