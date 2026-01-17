@@ -2,12 +2,15 @@
 import Nav from "./components/Nav.vue";
 import GameBoard from "./components/GameBoard.vue";
 import Keyboard from "./components/Keyboard.vue";
+import Popup from "./components/Popup.vue";
 import { getWordleWord } from "./services/apiGet.js";
+
 export default {
   components: {
     Nav,
     GameBoard,
     Keyboard,
+    Popup,
   },
 
   data() {
@@ -23,6 +26,10 @@ export default {
 
       currentRow: 0,
       keyboardStatus: {},
+
+      showPopup: false,
+      win: false,
+      gameOver: false,
     };
   },
 
@@ -57,8 +64,9 @@ export default {
     normalizeString(str) {
       return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     },
+
     handlePhysicalKey(event) {
-      if (this.currentRow >= 6) return;
+      if (this.currentRow >= 6 || this.gameOver) return;
 
       const key = event.key.toUpperCase();
 
@@ -77,7 +85,7 @@ export default {
     },
 
     handleKeyPress(key) {
-      if (this.currentRow >= 6) return;
+      if (this.currentRow >= 6 || this.gameOver) return;
 
       const row = this.board[this.currentRow];
 
@@ -99,6 +107,7 @@ export default {
         }
       }
     },
+
     updateKeyboardStatus(row) {
       row.forEach(({ letter, status }) => {
         const current = this.keyboardStatus[letter];
@@ -116,27 +125,39 @@ export default {
     },
 
     testWord(word) {
-      if (this.currentRow >= 6) return;
+      if (this.currentRow >= 6 || this.gameOver) return;
 
       const row = this.board[this.currentRow];
 
-      // On garde le mot original pour l'affichage
       const originalWord = word.toUpperCase();
 
-      // Normalisation pour comparaison
       const normalizedSolution = this.normalizeString(this.solution);
       const normalizedWord = this.normalizeString(originalWord);
 
-      // Mettre à jour les lettres du tableau avec le mot original
       originalWord.split("").forEach((letter, index) => {
-        row[index].letter = letter; // <- conserve les accents pour l'affichage
+        row[index].letter = letter;
       });
 
-      // Vérifier la ligne en utilisant les versions normalisées
       this.checkRow(row, normalizedSolution, normalizedWord);
 
-      // Mettre à jour le clavier
       this.updateKeyboardStatus(row);
+
+      const isWin = row.every((cell) => cell.status === "correct");
+      if (isWin) {
+        this.win = true;
+        this.gameOver = true;
+        this.showPopup = true;
+        return;
+      }
+
+      const isLastRow = this.currentRow === 5;
+      if (isLastRow) {
+        this.win = false;
+        this.gameOver = true;
+        this.showPopup = true;
+        return;
+      }
+
       this.currentRow++;
       this.saveGame();
     },
@@ -144,7 +165,6 @@ export default {
     checkRow(row, normalizedSolution, normalizedWord) {
       const solutionLetters = normalizedSolution.split("");
 
-      // 1. Vert : bonne lettre, bonne position
       row.forEach((cell, index) => {
         if (normalizedWord[index] === solutionLetters[index]) {
           cell.status = "correct";
@@ -152,8 +172,7 @@ export default {
         }
       });
 
-      // 2. Jaune / Rouge : lettre présente mais mauvaise position ou absente
-      row.forEach((cell, index) => {
+      row.forEach((cell) => {
         if (cell.status) return;
 
         const normalizedLetter = this.normalizeString(cell.letter);
@@ -167,7 +186,29 @@ export default {
         }
       });
     },
+
+    closePopup() {
+      this.showPopup = false;
+    },
+
+    restartGame() {
+      this.board = Array.from({ length: 6 }, () =>
+        Array.from({ length: 5 }, () => ({
+          letter: "",
+          status: "",
+        }))
+      );
+      this.currentRow = 0;
+      this.keyboardStatus = {};
+      this.showPopup = false;
+      this.win = false;
+      this.gameOver = false;
+
+      localStorage.removeItem("wordleWord");
+      window.location.reload();
+    },
   },
+
   beforeUnmount() {
     window.removeEventListener("keydown", this.handlePhysicalKey);
   },
@@ -197,12 +238,40 @@ export default {
 <template>
   <div class="flex flex-col items-center gap-5">
     <Nav />
+
     <GameBoard :board="board" />
+
     <Keyboard
       @submit-word="testWord"
       @key-press="handleKeyPress"
       :keyboardStatus="keyboardStatus"
     />
+
+    <Popup v-if="showPopup" @close="closePopup">
+      <template #title>
+        <h2 class="text-xl font-bold">
+          <span v-if="win">🎉 Bravo !</span>
+          <span v-else>😢 Perdu</span>
+        </h2>
+      </template>
+
+      <p class="text-base">
+        <span v-if="win">Tu as trouvé le mot :</span>
+        <span v-else>Le mot était :</span>
+        <strong style="margin-left: 6px; letter-spacing: 2px">
+          {{ solution }}
+        </strong>
+      </p>
+
+      <template #actions>
+        <button class="btn primary" type="button" @click="restartGame">
+          Rejouer
+        </button>
+        <button class="btn ghost" type="button" @click="closePopup">
+          Fermer
+        </button>
+      </template>
+    </Popup>
   </div>
 </template>
 
