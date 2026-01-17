@@ -15,7 +15,7 @@ export default {
 
   data() {
     return {
-      solution: "APPLE",
+      solution: "",
 
       board: Array.from({ length: 6 }, () =>
         Array.from({ length: 5 }, () => ({
